@@ -76,3 +76,28 @@
 .form-switch input:checked+i::after {
     transform: translate3d(22px, 2px, 0);
 }
+
+#toggleConnection {
+    background-color: #4CAF50;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px 20px 2px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+#toggleConnection:hover {
+    background-color: #45a049;
+}
+
+#toggleConnection:active {
+    background-color: #3d8b40;
+    transform: translateY(2px);
+}

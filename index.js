@@ -1,9 +1,21 @@
 import express from 'express';
 import cors from 'cors';
+import { createServer } from 'http';
+import { Server } from 'socket.io';
+
 
 // Crear la aplicación de Express
 const app = express();
 const PORT = 3000;
+
+// Crear el servidor HTTP
+const httpServer = createServer(app);
+const io = new Server(httpServer, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"]
+    }
+});
 
 // Middleware para manejar JSON
 app.use(cors());
@@ -35,6 +47,38 @@ const datos = {
     ],
     lista: []
 };
+
+// Configurar Socket.IO
+io.on('connection', (socket) => {
+    console.log('Cliente conectado:', socket.id);
+    
+    // Enviar estado inicial
+    socket.emit('initial-state', datos.lista);
+    
+    // Recibir actualizaciones
+    socket.on('update-state', (data) => {
+        const index = datos.lista.findIndex(item => item.name === data.item.name);
+        if (index !== -1) {
+            datos.lista[index].state = data.item.state;
+        } else {
+            datos.lista.push(data.item);
+        }
+        
+        // Emitir a TODOS los clientes
+        io.emit('state-updated', {
+            socketId: data.socketId,
+            item: data.item
+        });
+
+        // Log para debug
+        console.log('Estado actualizado:', data.item);
+        console.log('Emitiendo a todos los clientes');
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Cliente desconectado:', socket.id);
+    });
+});
 
 // Rutas
 app.get('/', (req, res) => {
@@ -68,6 +112,8 @@ app.get('/api/config', (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+// Iniciar el servidor
+
+httpServer.listen(3000, () => {
+    console.log('Servidor corriendo en http://localhost:3000');
 });
